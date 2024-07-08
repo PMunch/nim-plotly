@@ -4,12 +4,16 @@ import chroma, json
 
 type
   Plot*[T: SomeNumber] = ref object
+    id*: string
     traces* : seq[Trace[T]]
     layout*: Layout
+    options*: JsonNode
 
   PlotJson* = ref object
+    id*: string
     traces* : JsonNode
     layout*: JsonNode
+    options*: JsonNode
 
   SomePlot* = Plot | PlotJson
 
@@ -249,11 +253,13 @@ type
     rangeslider*: RangeSlider
     # setting no range implies plotly's `autorange` true
     range*: tuple[start, stop: float]
+    fixedrange*: bool
     # oposite of showticklabels
     hideticklabels*: bool
     gridColor*: Color
     gridWidth*: int
     ty*: AxisType
+    hidden*: bool
 
   Annotation* = ref object
     x*: float
@@ -273,6 +279,11 @@ type
     borderWidth*: int # border width in pixels
     orientation*: Orientation
 
+  DragMode* = enum Default, Zoom = "zoom", Pan = "pan"
+
+  Margin* = ref object
+    l*, r*, t*, b*: int
+
   Layout* = ref object
     title*: string
     width*: int
@@ -289,3 +300,5 @@ type
     barmode*: BarMode
     backgroundColor*: Color # background of plot
     paperColor*: Color # background of paper / canvas
+    dragmode*: DragMode
+    margin*: Margin

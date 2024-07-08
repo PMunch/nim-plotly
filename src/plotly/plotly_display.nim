@@ -85,18 +85,15 @@ proc parseTraces*[T](traces: seq[Trace[T]]): string =
   result.toUgly(% traces)
 
 # `show` and `save` are only used for the C target
-proc fillImageInjectTemplate(filetype, width, height: string): string =
+proc fillImageInjectTemplate(id, filetype, width, height: string): string =
   ## fill the image injection code with the correct fields
   ## Here we use numbering of elements to replace in the template.
   # Named replacements don't seem to work because of the characters
   # around the `$` calls
-  result = injectImageCode % [filetype,
-                              filetype,
-                              width,
-                              height,
-                              filetype,
-                              width,
-                              height]
+  result = injectImageCode % ["id", id,
+                              "filetype", filetype,
+                              "width", width,
+                              "height", height]
 
 proc fillHtmlTemplate(htmlTemplate,
                       data_string: string,
@@ -108,6 +105,8 @@ proc fillHtmlTemplate(htmlTemplate,
   var
     slayout = "{}"
     title = ""
+    options = if p.options.isNil: "{}" else: $p.options
+    id = if p.id.len == 0: "plot0" else: p.id
   if p.layout != nil:
     when type(p) is Plot:
       slayout = $(%p.layout)
@@ -130,17 +129,20 @@ proc fillHtmlTemplate(htmlTemplate,
       else:
         let swidth = $p.layout{"width"}
         let sheight = $p.layout{"height"}
-      imageInject = fillImageInjectTemplate(filetype, swidth, sheight)
+      imageInject = fillImageInjectTemplate(id, filetype, swidth, sheight)
 
   let scriptTag = if autoResize: resizeScript()
                   else: staticScript()
-  let scriptFilled = scriptTag % [ "data", data_string,
-                                   "layout", slayout ]
+  let scriptFilled = scriptTag % [ "id", id,
+                                   "data", data_string,
+                                   "layout", slayout,
+                                   "options", options ]
 
   # now fill all values into the html template
-  result = htmlTemplate % [ "title", title,
+  result = htmlTemplate % [ "id", id,
+                            "title", title,
                             "scriptTag", scriptFilled,
-                            "saveImage", imageInject]
+                            "saveImage", imageInject ]
 
 proc genPlotDirname(filename, outdir: string): string =
   ## generates unique name for the given input file based on its name and

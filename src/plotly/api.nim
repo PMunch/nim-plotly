@@ -156,6 +156,9 @@ func `%`*(a: Axis): JsonNode =
   else:
     fields["autorange"] = % true
 
+  if a.fixedrange:
+    fields["fixedrange"] = % true
+
   if a.rangeslider != nil:
     fields["rangeslider"] = % a.rangeslider
 
@@ -163,6 +166,8 @@ func `%`*(a: Axis): JsonNode =
     fields["gridcolor"] = % a.gridColor
   if a.gridWidth != 0:
     fields["gridwidth"] = % a.gridWidth
+  if a.hidden:
+    fields["visible"] = %false
 
   result = JsonNode(kind: JObject, fields: fields)
 
@@ -220,6 +225,10 @@ func `%`*(l: Layout): JsonNode =
     fields["plot_bgcolor"] = % l.backgroundColor
   if not l.paperColor.isEmpty:
     fields["paper_bgcolor"] = % l.paperColor
+  if l.dragmode != Default:
+    fields["dragmode"] = %l.dragmode
+  if l.margin != nil:
+    fields["margin"] = %l.margin
 
   result = JsonNode(kind: JObject, fields: fields)
 
